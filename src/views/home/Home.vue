@@ -5,7 +5,10 @@
       class="content"
       ref="scroll"
       :probe-type="3"
-      @scroll="contentScroll">
+      @scroll="contentScroll"
+      :pull-up-load="true"
+      @pullingUp="loadMore"
+      >
       <home-swiper :banners="banners"></home-swiper>
       <recommend-view :recommends="recommends" />
       <feature-view />
@@ -87,6 +90,11 @@ export default {
     contentScroll(position) {
       this.isShowBackTop = (-position.y) > 1000
     },
+    loadMore(){
+      this.getHomeGoods(this.currentType)
+
+      this.$refs.scroll.scroll.refresh();
+    },
 
     //网络请求方法
     getHomeGoods(type) {
@@ -94,6 +102,9 @@ export default {
       getHomeGoods(type, page).then((res) => {
         this.goods[type].list.push(...res.data.list);
         this.goods[type].page += 1;
+
+        this.$refs.scroll.scroll.finishPullUp();
+
       });
     },
   },
