@@ -11,13 +11,15 @@
         :pull-up-load="true"
         @pullingUp="loadMore"
     >
-      <home-swiper :banners="banners"></home-swiper>
+      <home-swiper :banners="banners" @swiperImageLoad="swiperImageLoad"></home-swiper>
       <recommend-view :recommends="recommends"/>
       <feature-view/>
       <tab-control
           class="tab-control"
           :titles="['流行', '新款', '精选']"
           @tabClick="tabClick"
+          ref="tableControl"
+          :class="{fixed: isTabFixed}"
       />
       <goods-list :goods="goods[currentType].list"/>
     </scroll>
@@ -59,7 +61,9 @@ export default {
         sell: {page: 0, list: []},
       },
       currentType: "pop",
-      isShowBackTop: false
+      isShowBackTop: false,
+      tabOffSetTop: 0,
+      isTabFixed: false
     };
   },
   created() {
@@ -70,13 +74,9 @@ export default {
     this.getHomeGoods("pop");
     this.getHomeGoods("new");
     this.getHomeGoods("sell");
-
-
   },
   mounted() {
-    console.log(this.$refs.scroll.scroll.refresh);
     const refresh = this.debounce(this.$refs.scroll.scroll.refresh, 300);
-
     //监听item中图片加载完成
     this.$bus.$on('itemImageLoad', () => {
       refresh()
@@ -111,7 +111,9 @@ export default {
       this.$refs.scroll.scroll.scrollTo(0, 0, 500);
     },
     contentScroll(position) {
-      this.isShowBackTop = (-position.y) > 1000
+      this.isShowBackTop = (-position.y) > 1000;
+
+      this.isTabFixed = (-position.y) > this.tabOffSetTop
     },
     loadMore() {
       this.getHomeGoods(this.currentType)
@@ -130,6 +132,9 @@ export default {
 
       });
     },
+    swiperImageLoad(){
+      this.tabOffSetTop = this.$refs.tableControl.$el.offsetTop;
+    }
   },
 };
 </script>
@@ -164,5 +169,12 @@ export default {
   bottom: 49px;
   left: 0;
   right: 0;
+}
+
+.fixed {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 44px;
 }
 </style>
