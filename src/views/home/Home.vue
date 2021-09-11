@@ -1,23 +1,25 @@
 <template>
   <div id="home">
-    <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
+    <nav-bar class="home-nav">
+      <div slot="center">购物街</div>
+    </nav-bar>
     <scroll
-      class="content"
-      ref="scroll"
-      :probe-type="3"
-      @scroll="contentScroll"
-      :pull-up-load="true"
-      @pullingUp="loadMore"
-      >
+        class="content"
+        ref="scroll"
+        :probe-type="3"
+        @scroll="contentScroll"
+        :pull-up-load="true"
+        @pullingUp="loadMore"
+    >
       <home-swiper :banners="banners"></home-swiper>
-      <recommend-view :recommends="recommends" />
-      <feature-view />
+      <recommend-view :recommends="recommends"/>
+      <feature-view/>
       <tab-control
-        class="tab-control"
-        :titles="['流行', '新款', '精选']"
-        @tabClick="tabClick"
+          class="tab-control"
+          :titles="['流行', '新款', '精选']"
+          @tabClick="tabClick"
       />
-      <goods-list :goods="goods[currentType].list" />
+      <goods-list :goods="goods[currentType].list"/>
     </scroll>
     <back-top @click.native="backClick" v-show="isShowBackTop"/>
   </div>
@@ -33,7 +35,7 @@ import GoodsList from "components/content/goods/GoodsList.vue";
 import Scroll from "components/common/scroll/Scroll.vue";
 import BackTop from "components/content/backTop/BackTop.vue";
 
-import { getHomeMultidata, getHomeGoods } from "network/home.js";
+import {getHomeMultidata, getHomeGoods} from "network/home.js";
 
 export default {
   name: "Home",
@@ -52,9 +54,9 @@ export default {
       banners: [],
       recommends: [],
       goods: {
-        pop: { page: 0, list: [] },
-        new: { page: 0, list: [] },
-        sell: { page: 0, list: [] },
+        pop: {page: 0, list: []},
+        new: {page: 0, list: []},
+        sell: {page: 0, list: []},
       },
       currentType: "pop",
       isShowBackTop: false
@@ -68,8 +70,29 @@ export default {
     this.getHomeGoods("pop");
     this.getHomeGoods("new");
     this.getHomeGoods("sell");
+
+
+  },
+  mounted() {
+    console.log(this.$refs.scroll.scroll.refresh);
+    const refresh = this.debounce(this.$refs.scroll.scroll.refresh, 300);
+
+    //监听item中图片加载完成
+    this.$bus.$on('itemImageLoad', () => {
+      refresh()
+    })
   },
   methods: {
+    debounce(func, delay) {
+      let time = null;
+      return function (...args) {
+        if (time) clearTimeout(time)
+        time = setTimeout(() => {
+          func.apply(this, args)
+        }, delay)
+      }
+    },
+
     // 时间监听相关的方法
     tabClick(index) {
       switch (index) {
@@ -90,7 +113,7 @@ export default {
     contentScroll(position) {
       this.isShowBackTop = (-position.y) > 1000
     },
-    loadMore(){
+    loadMore() {
       this.getHomeGoods(this.currentType)
 
       this.$refs.scroll.scroll.refresh();
@@ -127,12 +150,14 @@ export default {
   top: 0;
   z-index: 9;
 }
+
 .tab-control {
   position: sticky;
   top: 44px;
   background-color: #fff;
   z-index: 9;
 }
+
 .content {
   position: absolute;
   top: 44px;
