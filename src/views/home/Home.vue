@@ -63,7 +63,8 @@ export default {
       currentType: "pop",
       isShowBackTop: false,
       tabOffSetTop: 0,
-      isTabFixed: false
+      isTabFixed: false,
+      saveY: 0
     };
   },
   created() {
@@ -81,6 +82,13 @@ export default {
     this.$bus.$on('itemImageLoad', () => {
       refresh()
     })
+  },
+  activated() {
+    this.$refs.scroll.scroll.scrollTo(0, this.saveY, 0)
+    this.$refs.scroll.scroll.refresh
+  },
+  deactivated() {
+    this.saveY = this.$refs.scroll.scroll.y
   },
   methods: {
     debounce(func, delay) {
@@ -132,7 +140,7 @@ export default {
 
       });
     },
-    swiperImageLoad(){
+    swiperImageLoad() {
       this.tabOffSetTop = this.$refs.tableControl.$el.offsetTop;
     }
   },
