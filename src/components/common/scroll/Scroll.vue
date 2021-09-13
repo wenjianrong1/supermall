@@ -39,6 +39,7 @@ export default {
       }),
       this.scroll.on("pullingUp",()=>{
          this.$emit("pullingUp");
+         
       })
   },
 };
